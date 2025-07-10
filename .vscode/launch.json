@@ -3,9 +3,9 @@
     "configurations": [
       {
         "name": "Python: Run",
-        "type": "python",
+        "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder}/run.py",
+        "program": "${workspaceFolder}/src/run.py",
         "console": "integratedTerminal"
       }
     ]
