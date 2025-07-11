@@ -5,7 +5,7 @@ import numpy as np
 maze = np.array([
     list("S  #  "),
     list(" ## #G"),
-    list("     ")
+    list("      ")
 ])
 
 env = GridWorld(maze)

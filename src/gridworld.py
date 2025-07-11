@@ -1,18 +1,32 @@
 import numpy as np
+from typing import Tuple
 
 class GridWorld:
-    def __init__(self, grid):
-        self.grid = grid
-        self.start_pos = tuple(map(int, np.argwhere(grid == 'S')[0]))
-        self.goal_pos = tuple(map(int, np.argwhere(grid == 'G')[0]))
-        self.reset()
+    def __init__(self, grid: np.ndarray) -> None:
+        self.grid: np.ndarray = grid
 
-    def reset(self):
+        if self.grid.dtype.kind != 'U' and self.grid.dtype.kind != 'S':
+            raise ValueError("Grid dtype must be string (unicode or bytes)")
+
+        start_matches = np.argwhere(self.grid == 'S')
+        if start_matches.size == 0:
+            raise ValueError(f"No 'S' found — unique values: {np.unique(self.grid)}")
+        start_indices = start_matches[0]
+        self.start_pos: Tuple[int, int] = (int(start_indices[0]), int(start_indices[1]))
+
+        goal_matches = np.argwhere(self.grid == 'G')
+        if goal_matches.size == 0:
+            raise ValueError(f"No 'G' found — unique values: {np.unique(self.grid)}")
+        goal_indices = goal_matches[0]
+        self.goal_pos: Tuple[int, int] = (int(goal_indices[0]), int(goal_indices[1]))
+
+        self.agent_pos: Tuple[int, int] = self.start_pos
+
+    def reset(self) -> Tuple[int, int]:
         self.agent_pos = self.start_pos
         return self.agent_pos
 
-    def step(self, action):
-        # Actions: 0=Up, 1=Down, 2=Left, 3=Right
+    def step(self, action: int) -> Tuple[Tuple[int, int], float, bool]:
         moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
         move = moves[action]
 
@@ -24,23 +38,13 @@ class GridWorld:
             self.agent_pos = new_pos
 
         done = self.agent_pos == self.goal_pos
-        reward = 1 if done else -0.01  # tiny penalty per step
+        reward = 1.0 if done else -0.01
         return self.agent_pos, reward, done
 
-    def render(self):
+    def render(self) -> None:
         grid_copy = self.grid.copy()
         r, c = self.agent_pos
         grid_copy[r, c] = 'A'
         for row in grid_copy:
             print(' '.join(row))
         print()
-
-# Example usage:
-if __name__ == "__main__":
-    maze = np.array([
-        list("S  #  "),
-        list(" ## #G"),
-        list("     ")
-    ])
-    env = GridWorld(maze)
-    env.render()
