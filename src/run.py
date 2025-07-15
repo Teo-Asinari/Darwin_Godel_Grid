@@ -1,5 +1,6 @@
 from gridworld import GridWorld
 from agent import Agent
+from tabular_qlearn_agent import TabularQLearnAgent
 import numpy as np
 from astar import astar
 
@@ -11,22 +12,26 @@ maze = np.array([
 
 env = GridWorld(maze)
 
-agent = Agent()
+agent = TabularQLearnAgent(alpha=0.1, gamma=0.9, epsilon=0.2)
 
-episodes = 5
+episodes = 500
+
+path = astar(env.grid, env.start_pos, env.goal_pos)
+print("A* path: ", path)
 
 for ep in range(episodes):
     state = env.reset()
     done: bool = False
     total_reward: float = 0.0
 
-    path = astar(env.grid, env.start_pos, env.goal_pos)
-    print("A* path: ", path)
+    while not done:
+        action = agent.act(state)                      # pick action
+        next_state, reward, done = env.step(action)    # take action
+        agent.learn(state, action, reward, next_state) # update Q-table
+        state = next_state                             # advance
+        total_reward += reward
 
-    # while not done:
-    #     action: int = agent.act(state)
-    #     state, reward, done = env.step(action)
-    #     total_reward += reward
-    #     env.render()
-
+        # Optional: render occasionally
+        if ep % 50 == 0:
+            env.render()
     print(f"Episode {ep+1} total reward: {total_reward}\n")
