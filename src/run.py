@@ -1,6 +1,6 @@
 from gridworld import GridWorld
 from agent import Agent
-from tabular_qlearn_agent import TabularQLearnAgent
+from q_learning.tabular_qlearn_agent import TabularQLearnAgent
 import numpy as np
 from astar import astar
 from load_grid import load_grid
