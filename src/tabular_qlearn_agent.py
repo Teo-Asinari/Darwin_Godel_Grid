@@ -30,3 +30,21 @@ class TabularQLearnAgent(Agent):
         td_error = td_target - old_q
         new_q = old_q + self.alpha * td_error
         self.q_table[(state, action)] = new_q
+    
+    def render_policy(self, env):
+      action_symbols = ['↑', '↓', '←', '→']
+      policy_grid = np.full(env.grid.shape, ' ')
+
+      for r in range(env.grid.shape[0]):
+          for c in range(env.grid.shape[1]):
+              if env.grid[r, c] == '#' or env.grid[r, c] == 'G':
+                  continue
+              state = (r, c)
+              qs = [self.get_q(state, a) for a in range(4)]
+              best_action = np.argmax(qs)
+              policy_grid[r, c] = action_symbols[best_action]
+
+      print("\nLearned Policy:")
+      for row in policy_grid:
+          print(' '.join(row))
+

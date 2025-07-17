@@ -3,18 +3,20 @@ from agent import Agent
 from tabular_qlearn_agent import TabularQLearnAgent
 import numpy as np
 from astar import astar
+from load_grid import load_grid
 
-maze = np.array([
-    list("S  #  "),
-    list(" ## #G"),
-    list("      ")
-])
+maze = load_grid("src/gridworlds/gridworldMedium.txt")
+# maze = np.array([
+#     list("S  #  "),
+#     list(" ## #G"),
+#     list("      ")
+# ])
 
 env = GridWorld(maze)
 
 agent = TabularQLearnAgent(alpha=0.1, gamma=0.9, epsilon=0.2)
 
-episodes = 500
+episodes = 150
 
 path = astar(env.grid, env.start_pos, env.goal_pos)
 print("A* path: ", path)
@@ -35,3 +37,4 @@ for ep in range(episodes):
         if ep % 50 == 0:
             env.render()
     print(f"Episode {ep+1} total reward: {total_reward}\n")
+    agent.render_policy(env)
