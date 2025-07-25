@@ -1,6 +1,6 @@
 from gridworld import GridWorld
 from agent import Agent
-from q_learning.tabular_qlearn_agent import TabularQLearnAgent
+from q_learning.dqn_agent import DQNAgent
 import numpy as np
 from astar import astar
 from load_grid import load_grid
@@ -14,7 +14,7 @@ maze = load_grid("src/gridworlds/gridworldMedium.txt")
 
 env = GridWorld(maze)
 
-agent = TabularQLearnAgent(alpha=0.1, gamma=0.9, epsilon=0.2)
+agent = DQNAgent(state_dim=2, num_actions=4)
 
 episodes = 150
 
@@ -27,14 +27,19 @@ for ep in range(episodes):
     total_reward: float = 0.0
 
     while not done:
-        action = agent.act(state)                      # pick action
-        next_state, reward, done = env.step(action)    # take action
-        agent.learn(state, action, reward, next_state) # update Q-table
-        state = next_state                             # advance
+        action = agent.select_action(state)
+        next_state, reward, done = env.step(action)
+        agent.store((state, action, reward, next_state, float(done)))
+        agent.update(batch_size=32)
+        state = next_state
         total_reward += reward
 
-        # Optional: render occasionally
-        if ep % 50 == 0:
-            env.render()
+        if ep % 10 == 0:
+            agent.update_target()
+    agent.decay_epsilon()
+
+    # Optional: render occasionally
+    if ep % 50 == 0:
+        env.render()
     print(f"Episode {ep+1} total reward: {total_reward}\n")
     agent.render_policy(env)

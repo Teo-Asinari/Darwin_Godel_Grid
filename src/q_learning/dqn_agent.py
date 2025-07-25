@@ -4,8 +4,9 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 
-from dqn import DQN
-from replay_buffer import ReplayBuffer
+from q_learning.dqn import DQN
+from q_learning.replay_buffer import ReplayBuffer
+from torch.optim.adam import Adam
 
 class DQNAgent:
     def __init__(self, state_dim, num_actions):
@@ -13,7 +14,7 @@ class DQNAgent:
         self.target_net = DQN(state_dim, num_actions)
         self.target_net.load_state_dict(self.q_net.state_dict())
 
-        self.optimizer = optim.Adam(self.q_net.parameters(), lr=1e-3)
+        self.optimizer = Adam(self.q_net.parameters(), lr=1e-3)
         self.loss_fn = nn.MSELoss()
 
         self.buffer = ReplayBuffer(capacity=5000)
@@ -26,11 +27,11 @@ class DQNAgent:
 
     def select_action(self, state):
         if np.random.rand() < self.epsilon:
-            return np.random.randint(self.num_actions)
+            return int(np.random.randint(self.num_actions))
         else:
             state_tensor = torch.FloatTensor(state).unsqueeze(0)
             q_values = self.q_net(state_tensor)
-            return torch.argmax(q_values).item()
+            return int(torch.argmax(q_values).item())
 
     def store(self, transition):
         self.buffer.push(transition)
@@ -66,3 +67,21 @@ class DQNAgent:
 
     def decay_epsilon(self):
         self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
+
+    def render_policy(self, env):
+        action_symbols = ['↑', '↓', '←', '→']
+        policy_grid = np.full(env.grid.shape, ' ')
+
+        for r in range(env.grid.shape[0]):
+            for c in range(env.grid.shape[1]):
+                if env.grid[r, c] == '#' or env.grid[r, c] == 'G':
+                    continue
+                state = (r, c)
+                state_tensor = torch.FloatTensor(state).unsqueeze(0)
+                q_values = self.q_net(state_tensor)
+                best_action = int(torch.argmax(q_values).item())
+                policy_grid[r, c] = action_symbols[best_action]
+
+        print("\nLearned Policy:")
+        for row in policy_grid:
+            print(' '.join(row))
