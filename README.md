@@ -11,4 +11,4 @@ I heavily used LLMs to speed up development. The code is entirely written throug
 As such, there is some repetition. But the A-star implementation is textbook.
 
 The experience of working this way was pretty disorienting at times. I realize the main bottleneck here is my own working memory and 
-code reading-comprehension speed. 
+code reading-comprehension speed, both of which seem fixed. I guess I'll have to look for ways to improve those.
