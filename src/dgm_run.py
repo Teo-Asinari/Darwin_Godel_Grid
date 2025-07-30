@@ -1,22 +1,27 @@
 import copy
 import random
+from typing import Dict, List, Any, Union
 from q_learning.dqn_agent import DQNAgent
-from gridworld import GridWorld
+from gridworld import GridWorld, Position, StepOutput
 from load_grid import load_grid
 
+# Type aliases for better readability
+AgentConfig = Dict[str, Union[float, int]]
+GridWorldList = List[GridWorld]
+
 # 1. Define your GridWorld suite
-grid_files = [
+grid_files: List[str] = [
     "src/gridworlds/gridworldMedium.txt",
     "src/gridworlds/gridworldVeryLarge.txt",
     # Add more grid files as needed
 ]
-envs = [GridWorld(load_grid(f)) for f in grid_files]
+envs: GridWorldList = [GridWorld(load_grid(f)) for f in grid_files]
 
 # 2. Define initial agent config
-def create_agent(config):
+def create_agent(config: AgentConfig) -> DQNAgent:
     return DQNAgent(state_dim=2, num_actions=4, **config)
 
-initial_config = {
+initial_config: AgentConfig = {
     "gamma": 0.99,
     "epsilon": 1.0,
     "epsilon_decay": 0.995,
@@ -24,7 +29,7 @@ initial_config = {
 }
 
 # 3. Mutation function
-def mutate_config(config):
+def mutate_config(config: AgentConfig) -> AgentConfig:
     new_config = copy.deepcopy(config)
     # Example: randomly tweak gamma or epsilon_decay
     if random.random() < 0.5:
@@ -34,25 +39,25 @@ def mutate_config(config):
     return new_config
 
 # 4. Evaluation function
-def evaluate_agent(agent, envs, episodes=20):
-    total_reward = 0
-    for env in envs:
-        for _ in range(episodes):
-            state = env.reset()
-            done = False
-            while not done:
-                action = int(agent.select_action(state))
-                next_state, reward, done = env.step(action)
-                agent.store((state, action, reward, next_state, float(done)))
-                agent.update(batch_size=32)
-                state = next_state
-                total_reward += reward
-            agent.decay_epsilon()
-    return total_reward / (len(envs) * episodes)
+def evaluate_agent(agent: DQNAgent, envs: GridWorldList, episodes: int = 20) -> float:
+  total_reward: float = 0.0
+  for env in envs:
+    for _ in range(episodes):
+      state: Position = env.reset()
+      done: bool = False
+      while not done:
+        action: int = int(agent.select_action(state))
+        next_state, reward, done = env.step(action)
+        agent.store((state, action, reward, next_state, float(done)))
+        agent.update(batch_size=32)
+        state = next_state
+        total_reward += reward
+      agent.decay_epsilon()
+  return total_reward / (len(envs) * episodes)
 
 # 5. DGM loop
-best_config = initial_config
-best_score = float('-inf')
+best_config: AgentConfig = initial_config
+best_score: float = float('-inf')
 
 for generation in range(10):  # Number of self-improvement steps
     print(f"Generation {generation}")

@@ -1,8 +1,9 @@
 import numpy as np
 import os
 import time
+from typing import List, Tuple
 
-def generate_gridworld(rows, cols, wall_prob=0.2, ensure_path=True):
+def generate_gridworld(rows: int, cols: int, wall_prob: float = 0.2, ensure_path: bool = True) -> np.ndarray:
     """
     Generate a GridWorld as a numpy array with boundary walls, start (S), goal (G),
     and (optionally) a guaranteed path from S to G.
@@ -35,7 +36,7 @@ def generate_gridworld(rows, cols, wall_prob=0.2, ensure_path=True):
 
     return grid
 
-def save_gridworld_to_txt(grid, filename):
+def save_gridworld_to_txt(grid: np.ndarray, filename: str) -> None:
     """
     Save the gridworld numpy array to a text file, one row per line, no delimiters.
     """
@@ -44,11 +45,11 @@ def save_gridworld_to_txt(grid, filename):
             f.write(''.join(row) + '\n')
 
 class GridWorldBatchGenerator:
-    def __init__(self, output_dir="src/gridworlds"):
+    def __init__(self, output_dir: str = "src/gridworlds") -> None:
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
 
-    def generate_and_save_batch(self, sizes, num_per_size=10, wall_prob=0.2):
+    def generate_and_save_batch(self, sizes: List[int], num_per_size: int = 10, wall_prob: float = 0.2) -> None:
         for size in sizes:
             rows, cols = size, size
             for i in range(num_per_size):
@@ -62,5 +63,5 @@ class GridWorldBatchGenerator:
 if __name__ == "__main__":
     # Example: generate 10 gridworlds each of sizes 10x10, 50x50, 100x100, 150x150
     batch_gen = GridWorldBatchGenerator(output_dir="src/gridworlds")
-    sizes = [10, 50, 100, 150]
+    sizes: List[int] = [10, 50, 100, 150]
     batch_gen.generate_and_save_batch(sizes, num_per_size=10, wall_prob=0.2) 

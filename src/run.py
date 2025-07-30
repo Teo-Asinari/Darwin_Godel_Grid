@@ -1,4 +1,4 @@
-from gridworld import GridWorld
+from gridworld import GridWorld, Position, StepOutput
 from agent import Agent
 from q_learning.dqn_agent import DQNAgent
 import numpy as np
@@ -16,18 +16,18 @@ env = GridWorld(maze)
 
 agent = DQNAgent(state_dim=2, num_actions=4)
 
-episodes = 150
+episodes: int = 150
 
 path = astar(env.grid, env.start_pos, env.goal_pos)
 print("A* path: ", path)
 
 for ep in range(episodes):
-    state = env.reset()
+    state: Position = env.reset()
     done: bool = False
     total_reward: float = 0.0
 
     while not done:
-        action = agent.select_action(state)
+        action: int = agent.select_action(state)
         next_state, reward, done = env.step(action)
         agent.store((state, action, reward, next_state, float(done)))
         agent.update(batch_size=32)
